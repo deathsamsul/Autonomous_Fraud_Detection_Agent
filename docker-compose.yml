@@ -1,0 +1,74 @@
+services:
+  fraud-api:
+    build:
+      context: .
+      dockerfile: docker/fraud-api/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./database:/app/database
+      - ./models:/app/models
+      - ./mlruns:/app/mlruns
+      - ./logs:/app/logs
+
+  fraud-dashboard:
+    build:
+      context: .
+      dockerfile: docker/fraud-dashboard/Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./database:/app/database
+      - ./models:/app/models
+      - ./mlruns:/app/mlruns
+      - ./logs:/app/logs
+    depends_on:
+      - fraud-api
+
+  fraud-trainer:
+    build:
+      context: .
+      dockerfile: docker/fraud-trainer/Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./database:/app/database
+      - ./models:/app/models
+      - ./mlruns:/app/mlruns
+      - ./logs:/app/logs
+    profiles: ["trainer"]
+
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: docker/fraud-airflow/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      AIRFLOW_COMPONENT: webserver
+    volumes:
+      - ./app:/opt/airflow/app
+      - ./data:/opt/airflow/data
+      - ./database:/opt/airflow/database
+      - ./models:/opt/airflow/models
+      - ./mlruns:/opt/airflow/mlruns
+      - ./logs:/opt/airflow/logs
+    entrypoint: ["/entrypoint.sh"]
+
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: docker/fraud-airflow/Dockerfile
+    environment:
+      AIRFLOW_COMPONENT: scheduler
+    volumes:
+      - ./app:/opt/airflow/app
+      - ./data:/opt/airflow/data
+      - ./database:/opt/airflow/database
+      - ./models:/opt/airflow/models
+      - ./mlruns:/opt/airflow/mlruns
+      - ./logs:/opt/airflow/logs
+    entrypoint: ["/entrypoint.sh"]
+    depends_on:
+      - airflow-webserver
