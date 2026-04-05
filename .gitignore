@@ -11,6 +11,8 @@ airflow_env/
 logs/
 mlruns/
 
+datasets/
+
 models/*.cbm
 database/*.db
 
