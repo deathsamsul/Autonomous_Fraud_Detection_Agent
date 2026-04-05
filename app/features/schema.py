@@ -1,7 +1,11 @@
 from __future__ import annotations
 import numpy as np
 import pandas as pd
-from app.utils.utility import MODEL_COLUMNS, RAW_COLUMNS
+from app.utils.utility import MODEL_COLUMNS, RAW_COLUMNS, CATEGORICAL_COLS
+
+
+
+
 
 
 
@@ -9,6 +13,8 @@ def _ensure_columns(df: pd.DataFrame, required: list[str]) -> None:
     missing = [col for col in required if col not in df.columns]
     if missing:
         raise ValueError(f"Missing required columns: {missing}")
+
+
 
 
 
@@ -41,3 +47,32 @@ def feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
             raise ValueError(f"Engineered feature missing: {col}")
 
     return data[MODEL_COLUMNS].copy()
+
+
+
+
+
+def load_and_preprocess_data(path: str):
+
+# LATER USE NEW PREDICTED  DATA FOR VALIDATION WITH SAME TIME BASED SPLIT
+    df = pd.read_csv(path)
+    # sorting data by time to validate model on recent data
+    df = df.sort_values("trans_date_trans_time").reset_index(drop=True)
+    if "is_fraud" not in df.columns:
+        raise ValueError("Training/evaluation dataset must contain 'is_fraud'")
+
+    # y = df["is_fraud"].astype(int)
+    Y = df["is_fraud"].str.lower().map({"yes": 1, "no": 0}).astype(int)
+    X = feature_engineering(df)
+
+    for col in CATEGORICAL_COLS:
+        X[col] = X[col].astype(str)
+
+# validation on recent 3000 records and rest for training
+    x_valid=X.iloc[-3000:]
+    y_valid=Y.iloc[-3000 :]
+    # remaining records for training
+    x_train=X.iloc[:-3000]
+    y_train=Y.iloc[:-3000]
+
+    return x_valid, y_valid, x_train, y_train

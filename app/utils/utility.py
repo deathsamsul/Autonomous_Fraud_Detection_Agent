@@ -11,9 +11,9 @@ import psycopg2
 
 ## CREATE USER prediction_user WITH PASSWORD 'predict123';
 
-PREDICTION_DATABASE_URL="postgresql+psycopg2://prediction_user:predict123@localhost:5432/appdata"
-#PREDICTION_DATABASE_URL="postgresql+psycopg2://training_user:train123@localhost:5432/appdata"
-#DATABASE_URL = f"postgresql+psycopg2://{user}:{password}@localhost:5432/{your_database}"
+PREDICTION_DATABASE_URL=os.environ.get("PREDICTION_DATABASE_URL") or "postgresql+psycopg2://prediction_user:predict123@localhost:5432/appdata"
+TRAINING_DATA_STORE_URL=os.environ.get("TRAINING_DATA_STORE_URL") or "postgresql+psycopg2://training_user:train123@localhost:5432/appdata"
+# DATABASE_URL = f"postgresql+psycopg2://{user}:{password}@localhost:5432/{your_database}"
 MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
 MODEL_NAME="fraud_detection_model"
 ENDPOINT_URL=os.environ.get("ENDPOINT_URL", "http://127.0.0.1:9000")
@@ -47,7 +47,7 @@ CATEGORICAL_COLS = ['merchant', 'category', 'gender', 'city', 'state', 'job']
 
 
 def upload_training_data_to_db(data_path: str) -> None:
-    engine = create_engine("postgresql://training_user:train123@localhost:5432/appdata")
+    engine = create_engine(TRAINING_DATA_STORE_URL)
 
     df = pd.read_csv(data_path)
 
