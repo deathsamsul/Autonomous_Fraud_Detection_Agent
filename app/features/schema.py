@@ -52,17 +52,32 @@ def feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
 
 
 
+def get_target(df):
+
+    if "is_fraud" in df.columns:
+        return df["is_fraud"]
+
+    elif "actual_label" in df.columns:
+        return df["actual_label"]
+
+    else:
+        raise ValueError("Target column not found")
+
+
 def load_and_preprocess_data(path: str):
 
 # LATER USE NEW PREDICTED  DATA FOR VALIDATION WITH SAME TIME BASED SPLIT
     df = pd.read_csv(path)
     # sorting data by time to validate model on recent data
     df = df.sort_values("trans_date_trans_time").reset_index(drop=True)
-    if "is_fraud" not in df.columns:
-        raise ValueError("Training/evaluation dataset must contain 'is_fraud'")
 
-    # y = df["is_fraud"].astype(int)
-    Y = df["is_fraud"].str.lower().map({"yes": 1, "no": 0}).astype(int)
+    target = get_target(df)
+
+    if target.dtype == "object":
+        Y = target.str.lower().map({"yes": 1, "no": 0}).astype(int)
+    else:
+        Y = target.astype(int)
+        
     X = feature_engineering(df)
 
     for col in CATEGORICAL_COLS:

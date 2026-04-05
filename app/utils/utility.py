@@ -50,6 +50,12 @@ def upload_training_data_to_db(data_path: str) -> None:
     engine = create_engine(TRAINING_DATA_STORE_URL)
 
     df = pd.read_csv(data_path)
+    RAW_COLUMN = [ "merchant", "category", "amt", "gender", "city", "state", "zip", "lat", "long",
+                "city_pop", "job", "unix_time", "merch_lat", "merch_long", "trans_date_trans_time", "dob", "is_fraud"]
+    df = df[RAW_COLUMN]
+    df.rename(columns={"is_fraud": "actual_label"}, inplace=True)
+
+
 
     with engine.connect() as conn:
         conn.execute(text("TRUNCATE TABLE fraud_training_data"))
