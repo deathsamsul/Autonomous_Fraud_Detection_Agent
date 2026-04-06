@@ -21,3 +21,8 @@ data/
 .minio.sys/
 **/.minio.sys/
 minio
+minio.1
+
+*.log
+.env
+

@@ -32,3 +32,4 @@ def predict_fraud(input_data: dict):
         return int(pred), float(proba)
     except Exception as e:
         raise ValueError(f"Error occurred while making prediction: {e}")    
+
