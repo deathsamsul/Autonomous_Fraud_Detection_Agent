@@ -4,13 +4,12 @@ import mlflow
 import mlflow.catboost
 from catboost import CatBoostClassifier
 from sklearn.metrics import roc_auc_score
+from app.features.schema import load_and_preprocess_data
 from sklearn.model_selection import train_test_split
-from app.features.data_processing import load_and_preprocess_data
-from app.utils.utility import (MLFLOW_TRACKING_URI,EXPERIMENT_NAME,CATEGORICAL_COLS,
-                               AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,ENDPOINT_URL,TEMP_DIR)
-import boto3
+from app.utils.utility import (MLFLOW_TRACKING_URI,EXPERIMENT_NAME,CATEGORICAL_COLS,TEMP_DIR,TRAINING_DATA_STORE_URL)
+from sqlalchemy import create_engine
 import os 
-
+import pandas as pd
 
 
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
@@ -20,12 +19,16 @@ mlflow.set_experiment(EXPERIMENT_NAME)
 
 def train() -> dict:
 
-    s3=boto3.client('s3',aws_access_key_id=AWS_ACCESS_KEY_ID,aws_secret_access_key=AWS_SECRET_ACCESS_KEY,endpoint_url=ENDPOINT_URL)
+#s3=boto3.client('s3',aws_access_key_id=AWS_ACCESS_KEY_ID,aws_secret_access_key=AWS_SECRET_ACCESS_KEY,endpoint_url=ENDPOINT_URL)
     train_data_path=os.path.join(TEMP_DIR,"fraud_train.csv")
+    engine=create_engine(TRAINING_DATA_STORE_URL)
+    query="SELECT * FROM fraud_training_data"
+    df=pd.read_sql(query,engine)
+    df.to_csv(train_data_path,index=False)
  
     try:
-        s3.download_file('datasets', "fraud_train.csv", train_data_path)
-        X, y = load_and_preprocess_data(train_data_path)
+        #s3.download_file('datasets', "fraud_train.csv", train_data_path)
+        _,_,X, y = load_and_preprocess_data(train_data_path)
 
         X_train, X_valid, y_train, y_valid = train_test_split( X, y, test_size=0.2, random_state=42, stratify=y)
 

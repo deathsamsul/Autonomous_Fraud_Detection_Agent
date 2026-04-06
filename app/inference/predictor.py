@@ -2,7 +2,7 @@ from __future__ import annotations
 from app.mlops.mlflow_utils import load_production_model
 import pandas as pd
 from app.utils.utility import CATEGORICAL_COLS
-from features.schema import feature_engineering
+from app.features.schema import feature_engineering
 
 
 
@@ -21,11 +21,14 @@ def predict_fraud(input_data: dict):
     
     model = get_model()
 
-    df = pd.DataFrame([input_data])
-    df = feature_engineering(df)
-    for col in CATEGORICAL_COLS:
-        df[col] = df[col].astype(str)
-    
-    pred = model.predict(df)[0]
-    prob = model.predict_proba(df)[0][1]
-    return int(pred), float(prob)
+    try:
+        df = pd.DataFrame([input_data])
+        df = feature_engineering(df)
+        for col in CATEGORICAL_COLS:
+            df[col] = df[col].astype(str)
+        
+        pred = model.predict(df)[0]
+        proba= model.predict_proba(df)[0][1]
+        return int(pred), float(proba)
+    except Exception as e:
+        raise ValueError(f"Error occurred while making prediction: {e}")    

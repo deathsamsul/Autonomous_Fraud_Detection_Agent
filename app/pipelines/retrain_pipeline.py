@@ -3,6 +3,8 @@ from app.training.train_model import train
 import logging
 
 
+# initial pipeline
+# train → evaluate → register → promote to production
 
 
 logging.basicConfig(level=logging.INFO)
@@ -21,6 +23,6 @@ def run_retraining_pipeline() -> dict:
 
 
 
-if __name__ == "__main__":
-    result = run_retraining_pipeline()
-    print(result)
+# if __name__ == "__main__":
+#     result = run_retraining_pipeline()
+#     print(result)

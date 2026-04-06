@@ -4,6 +4,9 @@ import mlflow.catboost
 
 
 
+# initial pipeline
+# train → evaluate → register → promote to production
+
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
 # load model from mlflow registry
@@ -29,44 +32,22 @@ def register_candidate_model(candidate_run_id:str) -> dict:
 
 
 
+def promote_to_production(version: str, stage: str = "Production"):
+
+    client = mlflow.MlflowClient()
+    client.transition_model_version_stage(name=MODEL_NAME,version=version,stage=stage)
+    print(f"Model {MODEL_NAME} version {version} moved to {stage}.")
 
 
 
-
-
-
-
-# from __future__ import annotations
-# import shutil
-# from datetime import datetime, timezone
-# from catboost import CatBoostClassifier
-# from app.utils.utility import (CANDIDATE_MODEL_PATH,MODEL_NAME,PRODUCTION_MODEL_PATH,REGISTRY_PATH,read_registry,write_registry,)
-
-
-# def load_production_model() -> CatBoostClassifier:
-#     if not PRODUCTION_MODEL_PATH.exists():
-#         raise RuntimeError("No production model found. Train and register a model first.")
-#     model = CatBoostClassifier()
-#     model.load_model(str(PRODUCTION_MODEL_PATH))
-#     return model
-
-
-
-# def register_candidate_model(candidate_run_id: str) -> dict:
-#     if not CANDIDATE_MODEL_PATH.exists():
-#         raise FileNotFoundError(f"Candidate model not found: {CANDIDATE_MODEL_PATH}")
-
-#     PRODUCTION_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
-#     shutil.copy2(CANDIDATE_MODEL_PATH, PRODUCTION_MODEL_PATH)
-
-#     registry = read_registry()
-#     version = int(registry.get("version", 0)) + 1
-#     payload = {
-#         "model_name": MODEL_NAME,
-#         "version": version,
-#         "run_id": candidate_run_id,
-#         "production_model_path": str(PRODUCTION_MODEL_PATH),
-#         "updated_at": datetime.now(timezone.utc).isoformat(),
-#     }
-#     write_registry(payload)
-#     return payload
+def archive_current_production():
+    
+    client = mlflow.MlflowClient()
+    prod_versions = client.get_latest_versions(MODEL_NAME, stages=["Production"])
+    for v in prod_versions:
+        client.transition_model_version_stage(
+            name=MODEL_NAME,
+            version=v.version,
+            stage="Archived"
+        )
+        print(f"Archived version {v.version}")

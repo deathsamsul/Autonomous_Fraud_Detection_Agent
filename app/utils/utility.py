@@ -9,6 +9,8 @@ from sqlalchemy import create_engine,text
 import psycopg2
 
 
+
+
 ## CREATE USER prediction_user WITH PASSWORD 'predict123';
 
 PREDICTION_DATABASE_URL=os.environ.get("PREDICTION_DATABASE_URL") or "postgresql+psycopg2://prediction_user:predict123@localhost:5432/appdata"
@@ -57,6 +59,7 @@ def upload_training_data_to_db(data_path: str) -> None:
 
 
 
+
     with engine.connect() as conn:
         conn.execute(text("TRUNCATE TABLE fraud_training_data"))
         conn.commit()
@@ -69,13 +72,19 @@ def upload_training_data_to_db(data_path: str) -> None:
 
 
 
+# export AWS_ACCESS_KEY_ID=minioadmin
+# export AWS_SECRET_ACCESS_KEY=minioadmin
+# export MLFLOW_S3_ENDPOINT_URL=http://localhost:9000    # for api service port of minio is 9000, for minio console is 9001
 
+# minio server ~/data --console-address ":9001"
 
+# mlflow server \
+# --backend-store-uri postgresql://mlflow:mlflow1@localhost:5432/mlflowdb \
+# --default-artifact-root s3://mlflow \
+# --host 0.0.0.0 \
+# --port 5000
 
-
-
-
-
+# http://127.0.0.1:5000
 
 
 #before upload use trancate
