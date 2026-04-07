@@ -37,6 +37,7 @@ MODEL_COLUMNS = ["merchant", "category", "amt", "gender", "city", "state", "zip"
                    "is_night", "is_weekend"]
 
 
+
 RAW_COLUMNS = [ "merchant", "category", "amt", "gender", "city", "state", "zip", "lat", "long",
                 "city_pop", "job", "unix_time", "merch_lat", "merch_long", "trans_date_trans_time", "dob"]
 

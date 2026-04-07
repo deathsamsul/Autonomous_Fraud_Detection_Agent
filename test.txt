@@ -1,1 +1,9 @@
 hello
+
+
+export AWS_ACCESS_KEY_ID=minioadmin
+export AWS_SECRET_ACCESS_KEY=minioadmin
+export MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+
+http://localhost:9001
+./scripts_sh/start_mlflow.sh

@@ -5,10 +5,6 @@ from app.utils.utility import MODEL_COLUMNS, RAW_COLUMNS, CATEGORICAL_COLS
 
 
 
-
-
-
-
 def _ensure_columns(df: pd.DataFrame, required: list[str]) -> None:
     missing = [col for col in required if col not in df.columns]
     if missing:
@@ -35,9 +31,7 @@ def feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
     data["month"] = data["trans_date_trans_time"].dt.month
     data["weekday"] = data["trans_date_trans_time"].dt.weekday
     data["age"] = ((data["trans_date_trans_time"] - data["dob"]).dt.days / 365.25).clip(lower=0).fillna(0)
-    data["distance"] = np.sqrt(
-        (data["lat"] - data["merch_lat"]) ** 2 + (data["long"] - data["merch_long"]) ** 2
-    )
+    data["distance"] = np.sqrt((data["lat"] - data["merch_lat"]) ** 2 + (data["long"] - data["merch_long"]) ** 2)
     data["amt_log"] = np.log1p(data["amt"].clip(lower=0))
     data["is_night"] = data["hour"].isin([22, 23, 0, 1, 2, 3, 4]).astype(int)
     data["is_weekend"] = data["weekday"].isin([5, 6]).astype(int)
@@ -47,9 +41,6 @@ def feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
             raise ValueError(f"Engineered feature missing: {col}")
 
     return data[MODEL_COLUMNS].copy()
-
-
-
 
 
 def get_target(df):
@@ -62,7 +53,6 @@ def get_target(df):
 
     else:
         raise ValueError("Target column not found")
-
 
 def load_and_preprocess_data(path: str):
 
@@ -91,3 +81,16 @@ def load_and_preprocess_data(path: str):
     y_train=Y.iloc[:-3000]
 
     return x_valid, y_valid, x_train, y_train
+
+
+
+
+
+
+def try_prepare_features_for_shap(raw_df: pd.DataFrame):
+      
+    try:
+        prepared = feature_engineering(raw_df.copy())
+        return prepared, None
+    except Exception as e:
+        return None, e
