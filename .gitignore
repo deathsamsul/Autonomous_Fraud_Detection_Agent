@@ -26,3 +26,7 @@ minio.1
 *.log
 .env
 
+
+# Prometheus downloaded binaries
+prometheus-*.tar.gz
+prometheus-*.linux-amd64/
