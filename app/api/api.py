@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from app.inference.predictor import predict_fraud
 from app.db.crud import insert_prediction, update_actual_label
+from prometheus_client import Counter, Gauge, Summary, generate_latest, CONTENT_TYPE_LATEST,Histogram
 
 
 
@@ -13,6 +14,11 @@ from app.db.crud import insert_prediction, update_actual_label
 # uvicorn app.api.api:app --reload
 
 
+
+request_count = Counter("api_request_count", "Total number of API requests", ["endpoint"])
+prediction_gauge = Gauge("fraud_prediction", "Latest fraud prediction", ["transaction_id"])
+prediction_latency = Summary("prediction_latency_seconds", "Time taken for fraud prediction")
+drift_detection_histogram = Histogram("drift_detection_duration_seconds", "Duration of drift detection process")
 
 app = FastAPI(title="Fraud Detection API", version="1.0.0")
 

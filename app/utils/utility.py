@@ -12,7 +12,7 @@ import psycopg2
 
 
 ## CREATE USER prediction_user WITH PASSWORD 'predict123';
-
+METRICS_DB_URL=os.environ.get("METRICS_DB_URL") or "postgresql+psycopg2://metrics:metrics123@localhost:5432/appdata"
 PREDICTION_DATABASE_URL=os.environ.get("PREDICTION_DATABASE_URL") or "postgresql+psycopg2://prediction_user:predict123@localhost:5432/appdata"
 TRAINING_DATA_STORE_URL=os.environ.get("TRAINING_DATA_STORE_URL") or "postgresql+psycopg2://training_user:train123@localhost:5432/appdata"
 # DATABASE_URL = f"postgresql+psycopg2://{user}:{password}@localhost:5432/{your_database}"

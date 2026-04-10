@@ -1,8 +1,8 @@
-from sqlalchemy import create_engine, Column, Float, Integer, DateTime, Text, BigInteger, Numeric, Date
+from sqlalchemy import create_engine, Column, Float, Integer, DateTime, Text,text, BigInteger, Numeric, Date,JSON
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
-from app.utils.utility import PREDICTION_DATABASE_URL
+from app.utils.utility import PREDICTION_DATABASE_URL,METRICS_DB_URL
 
 
 
@@ -13,17 +13,52 @@ from app.utils.utility import PREDICTION_DATABASE_URL
 
 # Database connection
 engine = create_engine(PREDICTION_DATABASE_URL)
+engine2=create_engine(METRICS_DB_URL)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+SessionLocal2=sessionmaker(bind=engine2, autoflush=False, autocommit=False)
 Base = declarative_base()
 
 
+class ModelMetrics(Base):
+    __tablename__ = "metrics"
 
-from sqlalchemy import create_engine, Column, Float, Integer, DateTime, Text, BigInteger, Numeric, Date, text
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.dialects.postgresql import UUID
+    id = Column(Integer, primary_key=True)
+    model_name = Column(Text)
+    model_version = Column(Text)
+    accuracy = Column(Float)
+    precision = Column(Float)
+    recall = Column(Float)
+    f1_score = Column(Float)
 
-Base = declarative_base()
+    metrics = Column(JSON)
 
+def insert_metrics(model_name, model_version, accuracy, precision, recall, f1_score, metrics):
+    session = SessionLocal2()
+    try:
+        new_row = ModelMetrics(
+            model_name=model_name,
+            model_version=model_version,
+            accuracy=accuracy,
+            precision=precision,
+            recall=recall,
+            f1_score=f1_score,
+            metrics=metrics
+        )
+
+        session.add(new_row)
+        session.commit()
+        session.refresh(new_row)
+
+        print("Inserted successfully:", new_row.id)
+        return new_row.id
+
+    except Exception as e:
+        session.rollback()
+        print("Insert failed:", str(e))
+        return None
+
+    finally:
+        session.close()
 
 
 
@@ -58,27 +93,9 @@ class Prediction(Base):
 
 
 
-def insert_prediction(
-    merchant,
-    category,
-    amt,
-    gender,
-    city,
-    state,
-    zip,
-    lat,
-    long,
-    city_pop,
-    job,
-    unix_time,
-    merch_lat,
-    merch_long,
-    trans_date_trans_time,
-    dob,
-    fraud_probability,
-    prediction,
-    actual_label=None
-):
+def insert_prediction(merchant,category,amt,gender,city,state,zip,lat,long,city_pop,job,unix_time,merch_lat, merch_long,
+                      trans_date_trans_time,dob,fraud_probability,prediction,actual_label=None):
+    
     session = SessionLocal()
     try:
         new_row = Prediction(
@@ -162,6 +179,9 @@ if __name__ == "__main__":
         prediction=1,
         actual_label=None
     )
+
+
+
 
 
 
