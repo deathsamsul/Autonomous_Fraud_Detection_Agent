@@ -1,11 +1,100 @@
-hello
+=============strating congfigaration --------------------------------------------------
+
+# ml code code enviroment
+.venv
+source .venv/bin/activate
+
+# ml code directory 
+/home/sam/projects/
+
+# for airflow enviroment
+airflow_env and air_env
+source air_env/bin/activate  # air_env is in project directory
+source /home/sam/airflow/venvs/airflow_env/bin/activate
+
+# airflow .cfg and datadase file path is 
+/home/sam/airflow/
 
 
+# bashrc 
 export AWS_ACCESS_KEY_ID=minioadmin
 export AWS_SECRET_ACCESS_KEY=minioadmin
 export MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
 
+# MINOIO start
+minio server ~/data --console-address ":9001"
+# minio api server URL
 http://localhost:9001
-./scripts_sh/start_mlflow.sh
 
+
+# minio configerd with enviroment variable
+./scripts_sh/start_mlflow.sh
 ./scripts_sh/stop_mlflow.sh
+
+
+# POSTGRRESQL
+#   thsi is for monitoring metrics store 
+METRICS_DB_URL=postgresql+psycopg2://metrics:metrics123@localhost:5432/appdata
+#   new customer data with actual and with row data
+PREDICTION_DATABASE_URL=postgresql+psycopg2://prediction_user:predict123@localhost:5432/appdata
+#   historical data for train and test
+TRAINING_DATA_STORE_URL= postgresql+psycopg2://training_user:train123@localhost:5432/appdata
+#   data base url for mlflow exprement tracking metadata store
+DATABASE_URL = postgresql://mlflow:mlflow1@localhost:5432/mlflowdb
+#   airflow log store 
+postgresql+psycopg2://airflow:airflow123@localhost:5432/airflow_db
+export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_ASYNC=postgresql+asyncpg://airflow:airflowl123@localhost:5432/airflow_db
+export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_ASYNC=postgresql+asyncpg://airflow:airflowl123@localhost:5432/airflow_db
+
+# MLFLOW START WITH POSTGRESQL METADATA STORE AND MINIO FOR ARTIFACT STORE
+mlflow server \
+--backend-store-uri postgresql://mlflow:mlflow1@localhost:5432/mlflowdb \
+--default-artifact-root s3://mlflow \
+--host 0.0.0.0 \
+--port 5000
+
+# MLFLOW URL
+http://127.0.0.1:5000
+
+
+# api start 
+uvicorn app.api.api:app --reload
+
+# CUSTOM MONITORING DASHBORD WITH CONTROL PANALE
+streamlit run app/monitoring/monitoring_dashbord.py
+
+
+# ____________________ aiflow_dag config
+
+source /home/sam/airflow/venvs/airflow_env/bin/activate
+airflow dag-processor
+
+source /home/sam/airflow/venvs/airflow_env/bin/activate
+airflow scheduler
+
+source /home/sam/airflow/venvs/airflow_env/bin/activate
+airflow api-server
+
+# check dag list 
+airflow dags list
+
+# import error
+airflow dags list-import-errors
+
+# password check
+cat /home/sam/airflow/simple_auth_manager_passwords.json.generated
+
+
+# manual trigger with custom run_id and conf:
+airflow dags trigger fraud_retrain_4step_pipeline \
+--run-id retrain_april_13 \
+--conf '{"run_id":"4f510c7e4f2e47f985fdf3c23ecebaac"}'
+
+
+# airflow bashrc config for local one VM
+export AIRFLOW_HOME=/home/sam/airflow
+export AIRFLOW__CORE__DAGS_FOLDER=/home/sam/projects/fraud_detection_mlops/app/airflow_dags
+export AIRFLOW__CORE__LOAD_EXAMPLES=False
+export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflowl123@localhost:5432/airflow_db
+export AIRFLOW__CORE__EXECUTOR=LocalExecutor
+export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_ASYNC=postgresql+asyncpg://airflow:airflowl123@localhost:5432/airflow_db

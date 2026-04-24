@@ -72,22 +72,6 @@ def upload_training_data_to_db(data_path: str) -> None:
 
 
 
-
-# export AWS_ACCESS_KEY_ID=minioadmin
-# export AWS_SECRET_ACCESS_KEY=minioadmin
-# export MLFLOW_S3_ENDPOINT_URL=http://localhost:9000    # for api service port of minio is 9000, for minio console is 9001
-
-# minio server ~/data --console-address ":9001"
-
-# mlflow server \
-# --backend-store-uri postgresql://mlflow:mlflow1@localhost:5432/mlflowdb \
-# --default-artifact-root s3://mlflow \
-# --host 0.0.0.0 \
-# --port 5000
-
-# http://127.0.0.1:5000
-
-
 #before upload use trancate
 #TRUNCATE TABLE fraud_training_data;
 
@@ -189,127 +173,127 @@ def upload_training_data_to_db(data_path: str) -> None:
 #         path.mkdir(parents=True, exist_ok=True)
 
 
-@contextmanager
-def get_db_connection() -> Any:
-    ensure_dirs()
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        yield conn
-    finally:
-        conn.close()
+# @contextmanager
+# def get_db_connection() -> Any:
+#     ensure_dirs()
+#     conn = sqlite3.connect(DB_PATH)
+#     try:
+#         yield conn
+#     finally:
+#         conn.close()
 
 
 
-def init_db() -> None:
-    ensure_dirs()
-    with get_db_connection() as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS predictions (
-                transaction_id TEXT PRIMARY KEY,
-                timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-                fraud_probability REAL,
-                prediction INTEGER,
-                actual_label INTEGER
-            )
-            """
-        )
-        conn.commit()
+# def init_db() -> None:
+#     ensure_dirs()
+#     with get_db_connection() as conn:
+#         conn.execute(
+#             """
+#             CREATE TABLE IF NOT EXISTS predictions (
+#                 transaction_id TEXT PRIMARY KEY,
+#                 timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+#                 fraud_probability REAL,
+#                 prediction INTEGER,
+#                 actual_label INTEGER
+#             )
+#             """
+#         )
+#         conn.commit()
 
 
 
-def init_csv() -> None:
-    ensure_dirs()
-    if not CSV_PATH.exists():
-        pd.DataFrame(columns=PREDICTION_COLUMNS).to_csv(CSV_PATH, index=False)
+# def init_csv() -> None:
+#     ensure_dirs()
+#     if not CSV_PATH.exists():
+#         pd.DataFrame(columns=PREDICTION_COLUMNS).to_csv(CSV_PATH, index=False)
 
 
 
-def append_prediction_to_csv(record: dict) -> None:
-    ensure_dirs()
-    df = pd.DataFrame([record])
-    df.to_csv(CSV_PATH, mode="a", header=not CSV_PATH.exists(), index=False)
+# def append_prediction_to_csv(record: dict) -> None:
+#     ensure_dirs()
+#     df = pd.DataFrame([record])
+#     df.to_csv(CSV_PATH, mode="a", header=not CSV_PATH.exists(), index=False)
 
 
 
-def update_label_in_csv(transaction_id: str, actual_label: int) -> None:
-    if not CSV_PATH.exists():
-        raise FileNotFoundError(f"Prediction CSV not found: {CSV_PATH}")
-    df = pd.read_csv(CSV_PATH)
-    if transaction_id not in df["transaction_id"].values:
-        raise ValueError(f"Transaction ID {transaction_id} not found in CSV")
-    df.loc[df["transaction_id"] == transaction_id, "actual_label"] = actual_label
-    df.to_csv(CSV_PATH, index=False)
+# def update_label_in_csv(transaction_id: str, actual_label: int) -> None:
+#     if not CSV_PATH.exists():
+#         raise FileNotFoundError(f"Prediction CSV not found: {CSV_PATH}")
+#     df = pd.read_csv(CSV_PATH)
+#     if transaction_id not in df["transaction_id"].values:
+#         raise ValueError(f"Transaction ID {transaction_id} not found in CSV")
+#     df.loc[df["transaction_id"] == transaction_id, "actual_label"] = actual_label
+#     df.to_csv(CSV_PATH, index=False)
 
 
 
-def load_predictions_from_csv() -> pd.DataFrame:
-    if CSV_PATH.exists():
-        return pd.read_csv(CSV_PATH)
-    return pd.DataFrame(columns=PREDICTION_COLUMNS)
+# def load_predictions_from_csv() -> pd.DataFrame:
+#     if CSV_PATH.exists():
+#         return pd.read_csv(CSV_PATH)
+#     return pd.DataFrame(columns=PREDICTION_COLUMNS)
 
 
 
-def write_registry(data: dict) -> None:
-    ensure_dirs()
-    with open(REGISTRY_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+# def write_registry(data: dict) -> None:
+#     ensure_dirs()
+#     with open(REGISTRY_PATH, "w", encoding="utf-8") as f:
+#         json.dump(data, f, indent=2)
 
 
 
-def read_registry() -> dict:
-    if not REGISTRY_PATH.exists():
-        return {}
-    with open(REGISTRY_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+# def read_registry() -> dict:
+#     if not REGISTRY_PATH.exists():
+#         return {}
+#     with open(REGISTRY_PATH, "r", encoding="utf-8") as f:
+#         return json.load(f)
 
 
-#mlflow.set_tracking_uri("http://localhost:5000")
+# #mlflow.set_tracking_uri("http://localhost:5000")
 
-# #model registry
-# import boto3
-# import mlflow
-# import mlflow.sklearn
-# import pandas as pd
+# # #model registry
+# # import boto3
+# # import mlflow
+# # import mlflow.sklearn
+# # import pandas as pd
 
-# # Download dataset
-# s3 = boto3.client(
-#     "s3",
-#     endpoint_url="http://127.0.0.1:9000",
-#     aws_access_key_id="minioadmin",
-#     aws_secret_access_key="minioadmin"
-# )
+# # # Download dataset
+# # s3 = boto3.client(
+# #     "s3",
+# #     endpoint_url="http://127.0.0.1:9000",
+# #     aws_access_key_id="minioadmin",
+# #     aws_secret_access_key="minioadmin"
+# # )
 
-# s3.download_file(
-#     "datasets",
-#     "fraud_train.csv",
-#     "/tmp/fraud_train.csv"
-# )
+# # s3.download_file(
+# #     "datasets",
+# #     "fraud_train.csv",
+# #     "/tmp/fraud_train.csv"
+# # )
 
-# # Train
-# df = pd.read_csv("/tmp/fraud_train.csv")
-# model = train_model(df)
+# # # Train
+# # df = pd.read_csv("/tmp/fraud_train.csv")
+# # model = train_model(df)
 
-# # MLflow logging
-# with mlflow.start_run():
+# # # MLflow logging
+# # with mlflow.start_run():
 
-#     mlflow.log_param("model", "fraud_detection")
+# #     mlflow.log_param("model", "fraud_detection")
 
-#     mlflow.sklearn.log_model(
-#         model,
-#         "model",
-#         registered_model_name="fraud_detection_model"
-#     )
+# #     mlflow.sklearn.log_model(
+# #         model,
+# #         "model",
+# #         registered_model_name="fraud_detection_model"
+# #     )
 
 
 
-# # move to production 
-# from mlflow.tracking import MlflowClient
+# # # move to production 
+# # from mlflow.tracking import MlflowClient
 
-# client = MlflowClient()
+# # client = MlflowClient()
 
-# client.transition_model_version_stage(
-#     name="fraud_detection_model",
-#     version=1,
-#     stage="Production"
-# )
+# # client.transition_model_version_stage(
+# #     name="fraud_detection_model",
+# #     version=1,
+# #     stage="Production"
+# # )

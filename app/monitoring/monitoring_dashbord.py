@@ -44,6 +44,8 @@ def load_model_once():
 engine=create_engine(PREDICTION_DATABASE_URL)
 try:
     df=pd.read_sql("SELECT * FROM transactions_predictions", con=engine)
+    if "transaction_id" in df.columns:
+        df["transaction_id"] = df["transaction_id"].astype(str)
 except Exception as e:
     st.error(f"Error loading predictions from database: {e}")
     st.stop()

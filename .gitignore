@@ -5,6 +5,7 @@ __pycache__/
 venv/
 ml_env/
 airflow_env/
+air_env/
 .vscode/
 .pytest_cache/
 

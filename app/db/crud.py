@@ -6,7 +6,6 @@ from app.utils.utility import PREDICTION_DATABASE_URL,METRICS_DB_URL
 
 
 
-
 # python -m app.db.crud
 
 
