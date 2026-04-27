@@ -1,5 +1,9 @@
 =============strating congfigaration --------------------------------------------------
 
+cd /home/sam/projects/fraud_detection_mlops
+
+
+
 # ml code code enviroment
 .venv
 source .venv/bin/activate
@@ -57,7 +61,18 @@ mlflow server \
 http://127.0.0.1:5000
 
 
-# api start 
+
+# bashrc 
+export AWS_ACCESS_KEY_ID=minioadmin
+export AWS_SECRET_ACCESS_KEY=minioadmin
+export MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+
+# MINOIO start
+minio server ~/data --console-address ":9001"
+# minio api server URL
+http://localhost:9001
+
+# api start    PostgreSQL → MinIO → MLflow → FastAPI
 uvicorn app.api.api:app --reload
 
 # CUSTOM MONITORING DASHBORD WITH CONTROL PANALE
@@ -84,7 +99,6 @@ airflow dags list-import-errors
 # password check
 cat /home/sam/airflow/simple_auth_manager_passwords.json.generated
 
-
 # manual trigger with custom run_id and conf:
 airflow dags trigger fraud_retrain_4step_pipeline \
 --run-id retrain_april_13 \
@@ -98,3 +112,22 @@ export AIRFLOW__CORE__LOAD_EXAMPLES=False
 export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflowl123@localhost:5432/airflow_db
 export AIRFLOW__CORE__EXECUTOR=LocalExecutor
 export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_ASYNC=postgresql+asyncpg://airflow:airflowl123@localhost:5432/airflow_db
+
+# achitechtur
+docker/
+ ├── airflow_worker/
+ │    └── Dockerfile
+ ├── airflow_core/
+ │    └── Dockerfile
+
+# airflow core image command 
+docker build -f docker/airflow_core/Dockerfile -t deathsamsul/airflow-core:3.1.0 .
+/docker build --network=host -f docker/airflow_core/Dockerfile -t deathsamsul/airflow-core:3.2.0 .
+# airflw worker image 
+docker build -f docker/airflow_worker/Dockerfile -t deathsamsul/airflow-worker:3.2.0 .
+
+
+
+# postgresql docker images
+cd ~/projects/fraud_detection_mlops
+docker build -f docker/postgres/Dockerfile -t deathsamsul/postgres-cnpg:17.5-pgvector .

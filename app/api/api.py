@@ -7,11 +7,12 @@ from pydantic import BaseModel, Field
 from prometheus_client import (Counter,Gauge,Histogram,generate_latest,CONTENT_TYPE_LATEST,)
 from app.inference.predictor import predict_fraud
 from app.db.crud import insert_prediction, update_actual_label
+import logging
 
 
 
 
-
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Fraud Detection API", version="1.0.0")
 
@@ -135,6 +136,7 @@ def predict(transaction: Transaction):
                 "fraud_probability": float(fraud_probability),}
 
     except Exception as exc:
+        logger.exception("Error during prediction: %s", exc)
         PREDICT_ERROR_COUNT.inc()
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 

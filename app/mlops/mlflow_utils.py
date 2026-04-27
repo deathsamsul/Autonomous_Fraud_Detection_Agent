@@ -14,7 +14,7 @@ def load_production_model() -> CatBoostClassifier:
     client=mlflow.MlflowClient()
     try :
         latest_version = client.get_latest_versions(MODEL_NAME, stages=["Production"])[0]
-        if not latest_version:
+        if not latest_version: 
             raise RuntimeError("no production model found. Train and register a model first.")
         model_uri=f"models:/{MODEL_NAME}/{latest_version.version}"
         model=mlflow.catboost.load_model(model_uri)

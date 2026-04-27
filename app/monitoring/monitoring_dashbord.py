@@ -1,21 +1,25 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import requests
-from app.monitoring.shapp import compute_metrics,explain_with_shap,compute_simple_drift
 import matplotlib.pyplot as plt
-from app.utils.utility import TRAINING_DATA_STORE_URL,PREDICTION_DATABASE_URL,MODEL_COLUMNS
+#from app.utils.utility import TRAINING_DATA_STORE_URL,PREDICTION_DATABASE_URL,MODEL_COLUMNS
 from app.monitoring.shapp import compute_metrics,compute_simple_drift,explain_with_shap
 from app.inference.predictor import get_model
 from sqlalchemy import create_engine
 
-
+# env variables
+TRAINING_DATA_STORE_URL = os.getenv("TRAINING_DATA_STORE_URL")
+PREDICTION_DATABASE_URL = os.getenv("PREDICTION_DATABASE_URL")
+MONITORING_API_URL = os.getenv("MONITORING_API_URL", "http://api:8000")
 
 # streamlit run app/monitoring/monitoring_dashbord.py
+# later add system label monitoring for error couts latency memory etc
+
 
 
 # page config
@@ -41,7 +45,22 @@ def load_model_once():
 
 
 # df = load_predictions_from_csv()
-engine=create_engine(PREDICTION_DATABASE_URL)
+
+if not PREDICTION_DATABASE_URL:
+    st.error("Missing PREDICTION_DATABASE_URL environment variable")
+    st.stop()
+
+if not TRAINING_DATA_STORE_URL:
+    st.error("Missing TRAINING_DATA_STORE_URL environment variable")
+    st.stop()
+
+@st.cache_resource
+def get_prediction_engine():
+    return create_engine(PREDICTION_DATABASE_URL, pool_pre_ping=True)
+
+engine = get_prediction_engine()
+
+
 try:
     df=pd.read_sql("SELECT * FROM transactions_predictions", con=engine)
     if "transaction_id" in df.columns:
@@ -165,7 +184,14 @@ else:
 
 # drift detection
 st.subheader(" Drift Detection")
-engine1=create_engine(TRAINING_DATA_STORE_URL)
+
+
+@st.cache_resource
+def get_training_engine():
+    return create_engine(TRAINING_DATA_STORE_URL, pool_pre_ping=True)
+
+engine1 = get_training_engine()
+
 query = "SELECT * FROM fraud_training_data"
 try:
     reference_df = pd.read_sql(query, con=engine1)
@@ -319,7 +345,7 @@ with st.form("label_update_form"):
 
     if submitted:
         try:
-            response = requests.post("http://127.0.0.1:8000/update_label",json={"transaction_id": selected_txn_id,
+            response = requests.post(f"{MONITORING_API_URL}/update_label",json={"transaction_id": selected_txn_id,
                                                                                 "actual_label": true_label },timeout=10 )
             if response.status_code == 200:
                 st.success(f"Label for {selected_txn_id} updated to {true_label}")

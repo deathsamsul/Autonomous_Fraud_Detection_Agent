@@ -1,0 +1,104 @@
+# MLFLOW START WITH POSTGRESQL METADATA STORE AND MINIO FOR ARTIFACT STORE
+
+docker build -t deathsamsul/fraud-api:latest -f docker/fraud-api/Dockerfile .
+
+# MINOIO start
+minio server ~/data --console-address ":9001"
+# minio api server URL
+http://localhost:9001
+
+minio server ~/data --console-address ":9001"
+9000 = S3 API port
+9001 = Web console UI
+MinIO API:     http://localhost:9000
+MinIO Console: http://localhost:9001
+MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+
+
+export AWS_ACCESS_KEY_ID=minioadmin
+export AWS_SECRET_ACCESS_KEY=minioadmin
+export MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+
+mlflow server \
+  --backend-store-uri postgresql://mlflow:mlflow1@localhost:5432/mlflowdb \
+  --default-artifact-root s3://mlflow \
+  --host 0.0.0.0 \
+  --port 5000
+
+
+
+
+# MLFLOW URL
+http://127.0.0.1:5000
+
+
+localhost = same pod/container only
+
+# api start    PostgreSQL → MinIO → MLflow → FastAPI
+uvicorn app.api.api:app --reload
+
+
+
+PostgreSQL → MinIO → MLflow → FastAPI
+MLflow metadata → PostgreSQL
+MLflow artifacts → MinIO bucket
+
+MLflow needs PostgreSQL + MinIO
+FastAPI needs MLflow model registry/artifacts
+
+
+1. PostgreSQL container
+   - stores MLflow metadata
+   - stores app prediction data if you want
+
+2. MinIO container
+   - stores MLflow model artifacts
+
+3. MLflow container
+   - tracking server + model registry
+
+4. FastAPI container
+   - loads Production model from MLflow
+
+
+
+PostgreSQL starts first
+↓
+MinIO starts
+↓
+MLflow server starts
+↓
+FastAPI starts
+↓
+Streamlit / Airflow / monitoring starts
+
+
+
+
+
+
+
+
+
+
+
+
+fraud-detection-k8s/
+├── k8s/
+│   ├── namespace.yaml
+│   ├── secrets/
+│   │   └── app-secrets.yaml
+│   ├── configmaps/
+│   │   └── app-config.yaml
+│   ├── postgres/
+│   │   ├── postgres-statefulset.yaml
+│   │   └── postgres-service.yaml
+│   ├── minio/
+│   │   ├── minio-statefulset.yaml
+│   │   └── minio-service.yaml
+│   ├── mlflow/
+│   │   ├── mlflow-deployment.yaml
+│   │   └── mlflow-service.yaml
+│   ├── fastapi/
+│   │   ├── fastapi-deployment.yaml
+│   │   └── fastapi-service.yaml

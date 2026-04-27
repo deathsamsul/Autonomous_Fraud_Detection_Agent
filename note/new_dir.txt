@@ -1,0 +1,50 @@
+cd ~/projects
+mkdir fraud-detection-k8s
+cd fraud-detection-k8s
+
+# Create multiple folders at once
+# -p = create parent + child folders safely
+# If folder already exists → no error
+mkdir -p k8s/{namespaces,configmaps,secrets,postgres,minio,mlflow,fastapi,streamlit,airflow,prometheus,grafana,nginx,ingress}
+this create like this 
+mkdir -p k8s/namespaces
+mkdir -p k8s/configmaps
+mkdir -p k8s/secrets
+mkdir -p k8s/postgres
+mkdir -p k8s/minio
+mkdir -p k8s/mlflow
+mkdir -p k8s/fastapi
+mkdir -p k8s/streamlit
+mkdir -p k8s/airflow
+mkdir -p k8s/prometheus
+mkdir -p k8s/grafana
+mkdir -p k8s/nginx
+mkdir -p k8s/ingress
+
+# reate Helm folder
+# For Helm charts (advanced Kubernetes deployment)
+# -p if present then no error
+mkdir -p helm
+# touch = create empty file
+touch README.md
+
+
+
+# achitechtur
+fraud-detection-k8s/
+├── README.md
+├── k8s/
+│   ├── namespaces/
+│   ├── configmaps/
+│   ├── secrets/
+│   ├── postgres/
+│   ├── minio/
+│   ├── mlflow/
+│   ├── fastapi/
+│   ├── streamlit/
+│   ├── airflow/
+│   ├── prometheus/
+│   ├── grafana/
+│   ├── nginx/
+│   └── ingress/
+└── helm/
