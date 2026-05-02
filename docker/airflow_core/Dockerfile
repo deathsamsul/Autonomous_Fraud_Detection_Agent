@@ -19,4 +19,4 @@ RUN python -m pip install --no-cache-dir -r /tmp/airflow_requirements.txt && \
 ENV AIRFLOW_HOME=/opt/airflow
 ENV PYTHONPATH=/opt/airflow:/opt/airflow/app
 
-WORKDIR /opt/airflow
+WORKDIR /opt/airflow 
