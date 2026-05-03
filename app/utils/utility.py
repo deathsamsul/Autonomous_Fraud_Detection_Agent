@@ -27,7 +27,8 @@ EXPERIMENT_NAME = "fraud_detection"
 MONITORING_EXPERIMENT_NAME = "fraud_monitoring"
 CATEGORICAL_COLS = ["merchant", "category", "gender", "city", "state", "job"]
 BASE_DIR = Path(__file__).resolve().parents[2]
-TEMP_DIR = BASE_DIR / "temp_data"
+# TEMP_DIR = BASE_DIR / "temp_data"
+TEMP_DIR = Path( os.environ.get("TEMP_DIR", BASE_DIR / "temp_data"))
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 

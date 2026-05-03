@@ -7,6 +7,7 @@ import boto3
 from app.mlops.mlflow_utils import load_production_model
 from app.features.schema import load_and_preprocess_data
 import pandas as pd
+from pathlib import Path
 import os
 from sqlalchemy import create_engine
 

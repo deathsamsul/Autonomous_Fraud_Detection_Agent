@@ -1,8 +1,8 @@
+import os
 from app.pipelines.retrain_pipeline import run_retraining_pipeline
 from app.training.evaluate_model import evaluate_candidate_model
 from app.mlops.mlflow_utils import register_candidate_model, promote_to_production
-
-
+from pathlib import Path
 
 
 # python -m initial_model
