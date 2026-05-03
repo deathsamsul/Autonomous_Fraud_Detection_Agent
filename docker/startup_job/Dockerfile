@@ -5,6 +5,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -16,6 +17,6 @@ ENV PYTHONPATH=/app
 ENV DATA_DIR=/opt/datasets
 ENV TEMP_DIR=/tmp/temp_data
 
-CMD ["python", "-m", "app.startup_jobs.initial_model"]
+CMD ["python", "--version"]
 
 # docker build -f docker/startup_job/Dockerfile -t deathsamsul/startup_job:1.0 .
