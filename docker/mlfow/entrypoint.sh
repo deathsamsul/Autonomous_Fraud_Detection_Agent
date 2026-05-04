@@ -1,12 +1,10 @@
-#!/bin/bash  # sheband this tell the system to run this script using the bash shell
+#!/bin/bash
 
-# Without set -e, the script would continue even after errors (dangerous in production).
-set -e     # Exit immediately if a command exits with a non-zero status
+set -e
 
-echo "Starting MLflow server..."   # Log message to indicate the server is starting
+echo "Starting MLflow server..."
 
-# validate required env variables
-: "${BACKEND_STORE_URI:?Need BACKEND_STORE_URI}"             # "${VAR:?message}"
+: "${BACKEND_STORE_URI:?Need BACKEND_STORE_URI}"
 : "${ARTIFACT_ROOT:?Need ARTIFACT_ROOT}"
 : "${MLFLOW_S3_ENDPOINT_URL:?Need MLFLOW_S3_ENDPOINT_URL}"
 
