@@ -13,47 +13,37 @@ import logging
 
 
 logger = logging.getLogger(__name__)
-
 app = FastAPI(title="Fraud Detection API", version="1.0.0")
 
 
-# prometheus Metrics --------------------------------------------
 
+
+# prometheus Metrics --------------------------------------------
 # count every HTTP request
 REQUEST_COUNT = Counter("api_requests_total","Total number of API requests",["method", "endpoint", "http_status"],)
-
 # measure API request latency 
 REQUEST_LATENCY = Histogram("api_request_duration_seconds","Time spent processing API requests",["method", "endpoint"],)
-
 # count prediction endpoint calls
 PREDICT_REQUEST_COUNT = Counter("fraud_predict_requests_total","Total number of prediction requests",)
-
 # count prediction errors
 PREDICT_ERROR_COUNT = Counter("fraud_predict_errors_total","Total number of prediction errors",)
-
 # latest fraud probability from most recent prediction
 LATEST_FRAUD_PROBABILITY = Gauge("fraud_latest_probability","Fraud probability from the latest prediction",)
-
 # count fraud predictions
 FRAUD_PREDICTION_COUNT = Counter("fraud_predictions_total","Total number of fraud predictions",)
-
 # count non-fraud predictions
 NON_FRAUD_PREDICTION_COUNT = Counter("non_fraud_predictions_total","Total number of non-fraud predictions",)
-
 # count label updates
 LABEL_UPDATE_COUNT = Counter("fraud_label_updates_total","Total number of actual label updates",)
-
 # count label update errors
 LABEL_UPDATE_ERROR_COUNT = Counter("fraud_label_update_errors_total","Total number of label update errors",)
-
 HIGH_RISK_PREDICTION_COUNT = Counter("fraud_high_risk_predictions_total","Total number of high risk predictions")
 
 # middleware for all routes
-
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):  #function that calls actual endpoint 
     start_time = time.time()
-
+    status_code = 500 # default 
     try:
         response = await call_next(request)
         status_code = response.status_code

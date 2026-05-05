@@ -15,7 +15,7 @@ from sqlalchemy import create_engine
 # env variables
 TRAINING_DATA_STORE_URL = os.getenv("TRAINING_DATA_STORE_URL")
 PREDICTION_DATABASE_URL = os.getenv("PREDICTION_DATABASE_URL")
-MONITORING_API_URL = os.getenv("MONITORING_API_URL", "http://api:8000")
+MONITORING_API_URL = os.getenv("MONITORING_API_URL")
 
 # streamlit run app/monitoring/monitoring_dashbord.py
 # later add system label monitoring for error couts latency memory etc

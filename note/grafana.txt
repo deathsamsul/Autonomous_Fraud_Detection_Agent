@@ -1,0 +1,84 @@
+Everything measurable
+System metrics
+App metrics
+ML metrics
+Data quality
+Database stats
+Business insights
+
+1. Database Metrics      
+Use PostgreSQL scheduled cleanup
+From PostgreSQL:
+
+Query performance
+DB connections
+Transactions per second
+Slow queries
+
+2.Data Drift & Data Quality 
+Using tools like Evidently AI:
+Feature distribution changes
+Drift score per column
+Missing values
+Data anomalies
+
+3. ML Model Metrics 
+From your fraud detection system:
+Accuracy, Precision, Recall, F1-score
+ROC-AUC
+Prediction distribution (fraud vs non-fraud)
+Confidence scores
+
+4.Application Metrics (FastAPI, APIs)
+From your FastAPI + Prometheus setup:
+Request count (how many API calls)
+Request latency (response time)
+Error rate (500, 404)
+Endpoint-wise performance
+
+5.System & Infrastructure Metrics
+From tools like Prometheus + Node Exporter:
+CPU usage (%)
+Memory usage (RAM)
+Disk usage
+Network traffic
+Server uptime
+
+6.Business / Fraud Analytics
+Custom SQL queries from your predictions table:
+Total transactions
+Fraud vs non-fraud ratio
+Fraud by city/state
+High-risk users
+Daily fraud trends
+
+7. Alerts & Notifications
+Grafana can trigger alerts when:
+CPU too high
+Model accuracy drops
+Fraud rate spikes
+👉 Sends alerts to:
+Email
+Slack
+Webhook
+
+
+----------------------System & Infrastructure Metrics
+Node Exporter → Prometheus → Grafana
+Node Exporter collects machine metrics. Prometheus stores/query metrics. Grafana shows dashboards.
+Node Exporter runs on the server you want to monitor.
+Example metrics:
+CPU usage
+RAM usage
+Disk usage
+Network traffic
+System load
+Filesystem space
+Node Exporter default port:
+9100
+Test:
+http://localhost:9100/metrics
+FastAPI app ─────────────┐
+                         ├── Prometheus ─── Grafana
+Node Exporter ───────────┘
+Use PostgreSQL scheduled cleanup

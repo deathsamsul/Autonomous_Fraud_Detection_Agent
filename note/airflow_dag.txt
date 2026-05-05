@@ -1,0 +1,47 @@
+Use PostgreSQL scheduled cleanup
+FastAPI live/API metrics
+→ Prometheus → Grafana
+
+Node/server metrics
+→ Node Exporter → Prometheus → Grafana
+
+ML model quality metrics
+→ Airflow calculates → PostgreSQL → Grafana
+
+Old ML metrics cleanup
+→ Airflow daily cleanup DAG
+
+app/airflow_dags/
+├── monitoring_metrics_dag.py
+├── retraining_dag.py
+├── cleanup_metrics_dag.py
+
+
+1. monitoring_metrics_dag
+   → hourly/daily
+   → reads labeled predictions
+   → calculates Accuracy, Precision, Recall, F1, ROC-AUC
+   → stores metrics in PostgreSQL
+   → optionally logs to MLflow
+
+2. retraining_dag
+   → scheduled or triggered when F1/ROC-AUC drops
+   → retrain model
+   → evaluate
+   → register candidate model in MLflow
+
+3. cleanup_old_metrics_dag
+   → daily/weekly
+   → delete old monitoring metric rows from PostgreSQL
+   → example: older than 90 days
+
+Airflow DAG 1: monitor model performance
+Airflow DAG 2: retrain model
+Airflow DAG 3: cleanup old data
+
+Optional later:
+4. drift_monitoring_dag
+   → Evidently drift report
+   → store drift metrics/report
+5. data_quality_dag
+   → check missing values, schema, bad labels
