@@ -19,4 +19,4 @@ ENV TEMP_DIR=/tmp/temp_data
 
 CMD ["python", "--version"]
 
-# docker build -f docker/startup_job/Dockerfile -t deathsamsul/startup_job:1.0 .
+# docker build -f docker/startup_job/Dockerfile -t deathsamsul/startup_job:1.1 .
