@@ -45,3 +45,17 @@ Optional later:
    → store drift metrics/report
 5. data_quality_dag
    → check missing values, schema, bad labels
+
+
+
+API/Scheduler/DagProcessor → airflow_core image
+Worker → airflow_worker image
+Redis → official redis image
+Postgres → metadata DB
+
+Airflow API Server      airflow_core image
+Airflow Scheduler       airflow_core image
+Airflow DagProcessor    airflow_core image
+Airflow Worker          airflow_worker image
+Redis                   redis:7-alpine
+PostgreSQL              postgres / CNPG
