@@ -11,9 +11,14 @@ default_args = {
 }
 
 PROJECT_DIR = "/opt/airflow"
-APP_DIR = "/opt/airflow/app"
+APP_DIR = "/opt/airflow/repo/app"
 PYTHON_BIN = "/opt/airflow/ml_env/bin/python"
 SCRIPTS_DIR = f"{APP_DIR}/bash_operator_scripts"
+
+# PROJECT_DIR = "/opt/airflow"
+# APP_DIR = "/opt/airflow/app"
+# PYTHON_BIN = "/opt/airflow/ml_env/bin/python"
+# SCRIPTS_DIR = f"{APP_DIR}/bash_operator_scripts"
 
 with DAG(
     dag_id="fraud_retrain_4step_pipeline",
@@ -30,7 +35,7 @@ with DAG(
         bash_command=f"""
         set -euo pipefail
         cd {PROJECT_DIR}
-        export PYTHONPATH=/opt/airflow:/opt/airflow/app
+        export PYTHONPATH=/opt/airflow/repo:/opt/airflow
         {PYTHON_BIN} {SCRIPTS_DIR}/monitor.py
         """,
         skip_on_exit_code=99,
@@ -41,7 +46,7 @@ with DAG(
         bash_command=f"""
         set -euo pipefail
         cd {PROJECT_DIR}
-        export PYTHONPATH=/opt/airflow:/opt/airflow/app
+        export PYTHONPATH=/opt/airflow/repo:/opt/airflow
         {PYTHON_BIN} {SCRIPTS_DIR}/retrain.py
         """,
         do_xcom_push=True,
@@ -52,7 +57,7 @@ with DAG(
         bash_command=f"""
         set -euo pipefail
         cd {PROJECT_DIR}
-        export PYTHONPATH=/opt/airflow:/opt/airflow/app
+        export PYTHONPATH=/opt/airflow/repo:/opt/airflow
         RUN_ID="{{{{ ti.xcom_pull(task_ids='retrain_model') }}}}"
         {PYTHON_BIN} {SCRIPTS_DIR}/evaluate.py "$RUN_ID"
         """,
@@ -64,7 +69,7 @@ with DAG(
         bash_command=f"""
         set -euo pipefail
         cd {PROJECT_DIR}
-        export PYTHONPATH=/opt/airflow:/opt/airflow/app
+        export PYTHONPATH=/opt/airflow/repo:/opt/airflow
         CANDIDATE_RUN_ID="{{{{ ti.xcom_pull(task_ids='evaluate_model') }}}}"
         {PYTHON_BIN} {SCRIPTS_DIR}/register.py "$CANDIDATE_RUN_ID"
         """,
@@ -76,7 +81,7 @@ with DAG(
         bash_command=f"""
         set -euo pipefail
         cd {PROJECT_DIR}
-        export PYTHONPATH=/opt/airflow:/opt/airflow/app
+        export PYTHONPATH=/opt/airflow/repo:/opt/airflow
         VERSION="{{{{ ti.xcom_pull(task_ids='register_model') }}}}"
         {PYTHON_BIN} {SCRIPTS_DIR}/promote.py "$VERSION"
         """,
